@@ -19,7 +19,7 @@ iosv_l2 = {
 
 max_port=25
 
-
+# get and set username and password from user
 print("Please enter your user name:")
 username = input('username:')
 print("Please insert your password:")
@@ -39,9 +39,9 @@ for ipadd in ip_addresses:
     l_for_security =[] # a temp list for extracting Total MAC Adresses
     ports=range(1,max_port)
 
-    for p in ports :
+    for p in ports : # Check all ports whitch are in ip_addresses from G0/1 to G0/(max_port-1)
         output =net_connect.send_command('show port-security interface G0/'+str(p))
-        if("Enabled" in output):
+        if("Enabled" in output): # Check if port-security is enable then decide to disable ports which are enable but have no MAC address
             l_for_security=output.splitlines(False)
             tmp=(l_for_security[7])
             l2=tmp.split(":")
@@ -57,7 +57,8 @@ for ipadd in ip_addresses:
                         #port-security is enable, port is trunk. 
                         continue
                     else:
-                        #port-security is enable, port is enable but no MAC address sticked to this port.
+                        # port-security is enable, port is enable but no MAC address sticked to this port.
+                        # Disable this port
                         print(Fore.BLUE+"****************** Disable this port number : G0/"+str(p)+ " *******************"+Fore.WHITE)
                         disable_port_command = ["interface G0/"+str(p),"shutdown"]
                         net_connect.send_config_set(disable_port_command)
@@ -67,7 +68,7 @@ for ipadd in ip_addresses:
                         else:
                             print(Back.RED+"        <<<<<<Error on disabling>>>>>>>"+Back.BLACK)    
 
-        else:
+        else: # Check if port-security is disabled then advice to enable port-security for this port
             output =net_connect.send_command('show interface G0/'+str(p)+" status")
             if("disabled" in output):
                 #port-security is disabled, port is disabled.
